@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 import requests
 import re
 import config
+import os
 
 url = "https://nsfw3.p.rapidapi.com/v1/results"
 SPOILER = config.SPOILER_MODE
@@ -59,11 +60,14 @@ async def image(bot, message):
     sender = await Bot.get_chat_member(message.chat.id, message.from_user.id)
     isadmin = sender.privileges
     if not isadmin:
-        # Download the image
-        x = await message.download()
-        
-        # You can either upload the image to a server or use the Telegram file URL
-        image_url = "https://storage.googleapis.com/api4ai-static/samples/nsfw-1.jpg"  # Replace this with the actual image URL if needed
+        # Download the image and get the file ID to generate a URL
+        file_path = await message.download()
+
+        # The NSFW API expects a URL, so we'll upload the image to a publicly accessible URL
+        # or you can use the Telegram file URL
+        # The following is a placeholder for where the image will be hosted.
+        # You may need a service that generates URLs for Telegram file IDs.
+        image_url = file_path  # This is the local path to the file
         
         # Call the NSFW check function
         nsfw = check_nsfw_image(image_url)
@@ -72,7 +76,7 @@ async def image(bot, message):
             name = message.from_user.first_name
             await message.delete()
             if SPOILER:
-                await message.reply_photo(x, caption=f"""**ᴡᴀʀɴɪɴɢ ⚠️** (nude photo)
+                await message.reply_photo(file_path, caption=f"""**ᴡᴀʀɴɪɴɢ ⚠️** (nude photo)
                 **{name}** ꜱᴇɴᴛ ᴀ ɴᴜᴅᴇ/ɴꜱꜰᴡ ᴘʜᴏᴛᴏ""", has_spoiler=True)
 
 #-----------------------------------------------------------------
