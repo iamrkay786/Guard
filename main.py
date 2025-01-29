@@ -63,10 +63,14 @@ async def start(bot, update):
 async def image(bot, message):
     sender = await Bot.get_chat_member(message.chat.id, message.from_user.id)
     isadmin = sender.privileges
+
     if not isadmin:
-        # Retrieve file info asynchronously
+        # Correcting the way to retrieve file info
         async for file_info in bot.get_file(message.photo.file_id):
-    break
+            break  # Extract first result
+
+        file_path = file_info.file_path
+
         # Generate a publicly accessible URL
         image_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_path}"
         
@@ -77,8 +81,12 @@ async def image(bot, message):
             name = message.from_user.first_name
             await message.delete()
             if SPOILER:
-                await message.reply_photo(image_url, caption=f"""**ᴡᴀʀɴɪɴɢ ⚠️** (nude photo)
-                **{name}** ꜱᴇɴᴛ ᴀ ɴᴜᴅᴇ/ɴꜱꜰᴡ ᴘʜᴏᴛᴏ""", has_spoiler=True)
+                await message.reply_photo(
+                    image_url,
+                    caption=f"""**ᴡᴀʀɴɪɴɢ ⚠️** (nude photo)
+**{name}** ꜱᴇɴᴛ ᴀ ɴᴜᴅᴇ/ɴꜱꜰᴡ ᴘʜᴏᴛᴏ""",
+                    has_spoiler=True
+                )
 
 # Handler for text messages containing slang
 @Bot.on_message(filters.group & filters.text)
