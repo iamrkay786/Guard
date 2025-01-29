@@ -1,5 +1,6 @@
-import requests
 from pyrogram import Client, filters
+from pyrogram.types import Message
+import requests
 import config
 import re
 
@@ -65,23 +66,22 @@ async def image(bot, message):
     isadmin = sender.privileges
     if not isadmin:
         # Retrieve file info asynchronously
-        file_info = await bot.get_file(message.photo.file_id)
-        
-        # Ensure we get the file object properly
-        file_path = file_info.file_path
+        async for file_info in bot.get_file(message.photo.file_id):
+            # Now you have the actual file_info object
+            file_path = file_info.file_path
 
-        # Generate a publicly accessible URL
-        image_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_path}"
-        
-        # Call the NSFW check function with the Telegram image URL
-        nsfw = check_nsfw_image(image_url)
+            # Generate a publicly accessible URL
+            image_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_path}"
+            
+            # Call the NSFW check function with the Telegram image URL
+            nsfw = check_nsfw_image(image_url)
 
-        if nsfw:
-            name = message.from_user.first_name
-            await message.delete()
-            if SPOILER:
-                await message.reply_photo(image_url, caption=f"""**ᴡᴀʀɴɪɴɢ ⚠️** (nude photo)
-                **{name}** ꜱᴇɴᴛ ᴀ ɴᴜᴅᴇ/ɴꜱꜰᴡ ᴘʜᴏᴛᴏ""", has_spoiler=True)
+            if nsfw:
+                name = message.from_user.first_name
+                await message.delete()
+                if SPOILER:
+                    await message.reply_photo(image_url, caption=f"""**ᴡᴀʀɴɪɴɢ ⚠️** (nude photo)
+                    **{name}** ꜱᴇɴᴛ ᴀ ɴᴜᴅᴇ/ɴꜱꜰᴡ ᴘʜᴏᴛᴏ""", has_spoiler=True)
 
 # Handler for text messages containing slang
 @Bot.on_message(filters.group & filters.text)
