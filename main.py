@@ -59,14 +59,13 @@ async def start(bot, update):
 ʟᴇᴛ's ᴋᴇᴇᴘ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴀꜰᴇ ᴀɴᴅ ʀᴇsᴇᴄᴛꜰᴜʟ. ᴘᴏᴡᴇʀᴇᴅ ʙʏ @BillaSpace/@Heavenwaala
 """)
 
-# Handler for image messages
 @Bot.on_message(filters.group & filters.photo)
 async def image(bot, message):
     sender = await Bot.get_chat_member(message.chat.id, message.from_user.id)
     isadmin = sender.privileges
     if not isadmin:
-        # Retrieve file info asynchronously by iterating over the async generator
-        file_info = await bot.get_file(message.photo.file_id).__anext__()
+        # Retrieve file info asynchronously
+        file_info = await bot.get_file(message.photo.file_id)
         file_path = file_info.file_path
 
         # Generate a publicly accessible URL
