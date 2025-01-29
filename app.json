@@ -1,0 +1,45 @@
+{
+  "name": "ʙɪʟʟᴀ ᴍᴇᴅɪᴀ-ɢᴜᴀʀᴅɪᴀɴ",
+  "description": " ɪꜱ ᴀɴ ᴛᴇʟᴇɢʀᴀᴍ ɢʀᴏᴜᴘ ᴄʟᴇᴀɴᴇʀ ɪꜱ ᴀɴ ᴏᴘᴇɴ ꜱᴏᴜʀᴄᴇ ʙᴏᴛ ᴅᴇꜱɪɢɴᴇᴅ ᴛᴏ ʜᴇʟᴘ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴɪꜱᴛʀᴀᴛᴏʀꜱ ᴍᴀɪɴᴛᴀɪɴ ᴀ ᴄʟᴇᴀɴ ᴀɴᴅ ꜱᴀꜰᴇ ᴇɴᴠɪʀᴏɴᴍᴇɴᴛ ꜰᴏʀ ᴛʜᴇɪʀ ᴄᴏᴍᴍᴜɴɪᴛɪᴇꜱ [ᴍᴀɴᴀɢᴇᴍᴇɴᴛ ꜰᴇᴀᴛᴜʀᴇꜱ ᴄᴏᴍɪɴɢ ꜱᴏᴏɴ ].",
+  "logo": "",
+  "keywords": [
+    "Pyrogram",
+    "bot",
+    "nsfw Bot",
+    "Telegram Bot",
+    "BillaSpace"
+  ],
+  "Home-of-bot": "https://t.me/BillaSpace",
+  "Channel": "https://t.me/Heavenwaala",
+  "success_url": "https://t.me/interstellarXd",
+  "env": {
+    "BOT_TOKEN": {
+      "description": "You Telegram Bot Token from @BotFather",
+      "required": true
+    },
+    "API_HASH": {
+      "description": "Your API Hash from my.telegram.org",
+      "required": true
+    },
+    "API_ID": {
+      "description": "Your APP ID from my.telegram.org",
+      "required": true
+    },
+    "SPOILER_MODE": {
+      "description": "Value should be True or False. Send photo/message as Spoiler if True. Default is True",
+      "value": "True",
+      "required": false
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  }
+}
