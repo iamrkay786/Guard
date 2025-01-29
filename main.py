@@ -1,10 +1,8 @@
 from pyrogram import Client, filters
 import requests
-import re
 import config
-import os
+import re
 
-url = "https://nsfw3.p.rapidapi.com/v1/results"
 SPOILER = config.SPOILER_MODE
 slangf = 'slang_words.txt'
 
@@ -18,17 +16,7 @@ Bot = Client(
     api_hash=config.API_HASH
 )
 
-#-----------------------------------------------------------------
-
-@Bot.on_message(filters.private & filters.command("start"))
-async def start(bot, update):
-    await update.reply("""ʜɪ ᴛʜᴇʀᴇ! ɪ'ᴍ ᴛʜᴇ ʙɪʟʟᴀ ᴍᴇᴅɪᴀ ɢᴜᴀʀᴅɪᴀɴ ʙᴏᴛ. ɪ'ᴍ ʜᴇʀᴇ ᴛᴏ ʜᴇʟᴘ ʏᴏᴜ ᴋᴇᴇᴘ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴄʟᴇᴀɴ ᴀɴᴅ ꜱᴀꜰᴇ ꜰᴏʀ ᴇᴠᴇʀʏᴏɴᴇ. ʜᴇʀᴇ ᴀʀᴇ ᴛʜᴇ ᴍᴀɪɴ ꜰᴇᴀᴛᴜʀᴇꜱ ɪ ᴏꜰꜰᴇʀꜱ::
-• **ɪᴍᴀɢᴇ ꜰɪʟᴛᴇʀɪɴɢ:** ɪ ᴄᴀɴ ᴀʟꜱᴏ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇᴛᴇᴄᴛ ᴀɴᴅ ʀᴇᴍᴏᴠᴇ ᴘᴏʀɴᴏɢʀᴀᴘʜɪᴄ ᴏʀ ɴꜱꜰᴡ ɪᴍᴀɢᴇꜱ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘꜱ
-• **ᴡᴏʀᴅ ꜱʟᴀɴɢɪɴɢ:** ɪ ᴄᴀɴ ᴅᴇᴛᴇᴄᴛ ᴀɴᴅ ʀᴇᴍᴏᴠᴇ ɪɴᴀᴘᴘʀᴏᴘʀɪᴀᴛᴇ ʟᴀɴɢᴜᴀɢᴇ [ɢᴀᴀʟɪ-ꜱʟᴀɴɢꜰᴜʟ] ᴍᴇꜱꜱᴀɢᴇꜱ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ. 
-ᴛᴏ ɢᴇᴛ ꜱᴛᴀʀᴛᴇᴅ, ꜱɪᴍᴘʟʏ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ᴛᴇʟᴇɢʀᴀᴍ ɢʀᴏᴜᴘ-ᴄʜᴀᴛꜱ ᴀɴᴅ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇ ᴛᴏ ᴀᴅᴍɪɴ ᴛʜᴀɴᴋꜱ ꜰᴏʀ ᴜꜱɪɴɢ ʙɪʟʟᴀ ᴍᴇᴅɪᴀ-ɢᴜᴀʀᴅɪᴀɴ! ʟᴇᴛ'ꜱ ᴋᴇᴇᴘ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴀꜰᴇ ᴀɴᴅ ʀᴇꜱᴘᴇᴄᴛꜰᴜʟ. ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Heavenwaala/@BillaSpace""")
-
-#-----------------------------------------------------------------
-
+# NSFW check function
 def check_nsfw_image(image_url):
     url = "https://nsfw3.p.rapidapi.com/v1/results"
     payload = {
@@ -41,46 +29,39 @@ def check_nsfw_image(image_url):
         "Content-Type": "application/x-www-form-urlencoded"
     }
 
-    # Send the POST request
     response = requests.post(url, data=payload, headers=headers)
     
-    # Handle the response
     if response.status_code == 200:
         data = response.json()
         nsfw = data.get("data", {}).get("is_nsfw", False)
         return nsfw
     else:
-        print("Error with API request:", response.status_code)
+        print(f"Error with API request: {response.status_code}")
         return False
 
-#-----------------------------------------------------------------
-
+# Handler for image messages
 @Bot.on_message(filters.group & filters.photo)
 async def image(bot, message):
     sender = await Bot.get_chat_member(message.chat.id, message.from_user.id)
     isadmin = sender.privileges
     if not isadmin:
-        # Download the image and get the file ID to generate a URL
-        file_path = await message.download()
-
-        # The NSFW API expects a URL, so we'll upload the image to a publicly accessible URL
-        # or you can use the Telegram file URL
-        # The following is a placeholder for where the image will be hosted.
-        # You may need a service that generates URLs for Telegram file IDs.
-        image_url = file_path  # This is the local path to the file
+        # Get the file ID and file path using the Telegram API
+        file_info = await bot.get_file(message.photo.file_id)
         
-        # Call the NSFW check function
+        # Generate a publicly accessible URL
+        image_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info.file_path}"
+        
+        # Call the NSFW check function with the Telegram image URL
         nsfw = check_nsfw_image(image_url)
 
         if nsfw:
             name = message.from_user.first_name
             await message.delete()
             if SPOILER:
-                await message.reply_photo(file_path, caption=f"""**ᴡᴀʀɴɪɴɢ ⚠️** (nude photo)
+                await message.reply_photo(image_url, caption=f"""**ᴡᴀʀɴɪɴɢ ⚠️** (nude photo)
                 **{name}** ꜱᴇɴᴛ ᴀ ɴᴜᴅᴇ/ɴꜱꜰᴡ ᴘʜᴏᴛᴏ""", has_spoiler=True)
 
-#-----------------------------------------------------------------
-
+# Slang detection handler
 @Bot.on_message(filters.group & filters.text)
 async def slang(bot, message):
     sender = await Bot.get_chat_member(message.chat.id, message.from_user.id)
@@ -94,15 +75,14 @@ async def slang(bot, message):
                 isslang = True
                 await message.delete()
                 sentence = sentence.replace(word, f'||{word}||')
+        
         if isslang:
             name = message.from_user.first_name
             msgtxt = f"""{name} ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ ʜᴀꜱ ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ ᴅᴜᴇ ᴛᴏ ᴛʜᴇ ᴘʀᴇꜱᴇɴᴄᴇ ᴏꜰ ɪɴᴀᴘᴘʀᴏᴘʀɪᴀᴛᴇ ʟᴀɴɢᴜᴀɢᴇ[ɢᴀᴀʟɪ/ꜱʟᴀɴɢꜰᴜʟ ᴡᴏʀᴅꜱ]. ʜᴇʀᴇ ɪꜱ ᴀ ᴄᴇɴꜱᴏʀᴇᴅ ᴠᴇʀꜱɪᴏɴ ᴏꜰ ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ:
-            
+                
 {sentence}
             """
             if SPOILER:
                 await message.reply(msgtxt)
-
-#--------------------------------------------------------------------------------------------------
 
 Bot.run()
