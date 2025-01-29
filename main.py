@@ -65,8 +65,8 @@ async def image(bot, message):
     sender = await Bot.get_chat_member(message.chat.id, message.from_user.id)
     isadmin = sender.privileges
     if not isadmin:
-        # Retrieve file info asynchronously
-        file_info = await bot.get_file(message.photo.file_id)
+        # Retrieve file info asynchronously by iterating over the async generator
+        file_info = await bot.get_file(message.photo.file_id).__anext__()
         file_path = file_info.file_path
 
         # Generate a publicly accessible URL
