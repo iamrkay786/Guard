@@ -65,15 +65,12 @@ async def image(bot, message):
     isadmin = sender.privileges
 
     if not isadmin:
-        # Correcting the way to retrieve file info
-        file_info = await bot.download_media(message.photo.file_id)
+        file_info = await bot.get_file(message.photo.file_id)
+        image_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info.file_path}"
 
-        # Generate a publicly accessible URL
-        image_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info}"
-        
-        # Call the NSFW check function with the Telegram image URL
+        print(f"Checking NSFW for image: {image_url}")  # Debugging
+
         nsfw = check_nsfw_image(image_url)
-
         if nsfw:
             name = message.from_user.first_name
             await message.delete()
