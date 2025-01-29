@@ -65,9 +65,8 @@ async def image(bot, message):
     isadmin = sender.privileges
     if not isadmin:
         # Retrieve file info asynchronously
-        file_info = await bot.get_file(message.photo.file_id)
-        file_path = file_info.file_path
-
+        async for file_info in bot.get_file(message.photo.file_id):
+    break
         # Generate a publicly accessible URL
         image_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_path}"
         
