@@ -3,6 +3,7 @@ from pyrogram.types import Message
 import requests
 import config
 import re
+import os
 
 # Configuration for Spoiler Mode
 SPOILER = config.SPOILER_MODE
