@@ -68,8 +68,8 @@ async def image(bot: Client, message: Message):
 
     if not isadmin:
         try:
-            # Retrieve the highest resolution photo from the message
-            photo = message.photo[-1]  # This assumes the photo is available as a list of sizes
+            # Directly access the photo object, no need for subscripting
+            photo = message.photo  # PhotoSize object (highest resolution photo)
             print(f"Downloading image with file ID: {photo.file_id}")
 
             # Get the file information asynchronously
