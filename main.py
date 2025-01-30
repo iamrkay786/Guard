@@ -39,8 +39,8 @@ async def check_nsfw_image(image_path):
                     nsfw = data.get("data", {}).get("is_nsfw", False)
                     return nsfw
                 else:
-                print(f"Eʀʀᴏʀ Wɪᴛʜ Aᴘɪ ʀᴇǫᴜᴇsᴛ: {response.status}")
-                return False
+                    print(f"API request error: {response.status}")
+                    return False
 
 # Handler for '/start' command
 @Bot.on_message(filters.private & filters.command("start"))
