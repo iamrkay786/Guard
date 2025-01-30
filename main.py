@@ -68,31 +68,30 @@ async def image(bot: Client, message: Message):
 
     if not isadmin:
         try:
-            # Directly access the photo object, no need for subscripting
-            photo = message.photo  # PhotoSize object (highest resolution photo)
+            # Directly access the photo object (PhotoSize)
+            photo = message.photo
             print(f"Downloading image with file ID: {photo.file_id}")
 
-            # Get the file information asynchronously
-            async for file_info in bot.get_file(photo.file_id):
-                # Ensure the file info has a file path
-                if file_info.file_path:
-                    file_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info.file_path}"
+            # Get the file information
+            file_info = await bot.get_file(photo.file_id)
+            if file_info.file_path:
+                file_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info.file_path}"
 
-                    # Check if the image is NSFW using the provided asynchronous function
-                    print(f"Checking NSFW for image: {file_url}")  # Debugging
-                    nsfw = await check_nsfw_image(file_url)
+                # Check if the image is NSFW
+                print(f"Checking NSFW for image: {file_url}")  # Debugging
+                nsfw = await check_nsfw_image(file_url)
 
-                    if nsfw:
-                        name = message.from_user.first_name
-                        await message.delete()
+                if nsfw:
+                    name = message.from_user.first_name
+                    await message.delete()
 
-                        if config.SPOILER:  # Ensure SPOILER flag is defined in config
-                            await message.reply_photo(
-                                file_url,
-                                caption=f"""**⚠️ Warning** (NSFW ᴅᴇᴛᴇᴄᴛᴇᴅ)
+                    if config.SPOILER:  # Ensure SPOILER flag is defined in config
+                        await message.reply_photo(
+                            file_url,
+                            caption=f"""**⚠️ Warning** (NSFW ᴅᴇᴛᴇᴄᴛᴇᴅ)
 **{name}** Sᴇɴᴛ A Nᴜᴅᴇ/NSFW Pʜᴏᴛᴏ""",
-                                has_spoiler=True
-                            )
+                            has_spoiler=True
+                        )
 
         except Exception as e:
             print(f"Eʀʀᴏʀ ᴘʀᴏᴄᴇssɪɴɢ ɪᴍᴀɢᴇ: {e}")  # Debugging
