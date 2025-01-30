@@ -22,27 +22,23 @@ Bot = Client(
 )
 
 # NSFW check function using aiohttp (asynchronous)
-async def check_nsfw_image(image_url):
+async def check_nsfw_image(image_path):
     url = "https://nsfw3.p.rapidapi.com/v1/results"
-    payload = {
-        "url": image_url,
-        "strictness": "1.0"
-    }
     headers = {
-        "x-rapidapi-key": config.NSFW_API_KEY,  # Use the API key from config
-        "x-rapidapi-host": "nsfw3.p.rapidapi.com",
-        "Content-Type": "application/x-www-form-urlencoded"
+        "x-rapidapi-key": config.NSFW_API_KEY,  # Use your API key
+        "x-rapidapi-host": "nsfw3.p.rapidapi.com"
     }
 
-    # Asynchronous HTTP request using aiohttp
+    # Send image as a file
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, data=payload, headers=headers) as response:
-            # Handle the response
-            if response.status == 200:
-                data = await response.json()  # Async way to get JSON response
-                nsfw = data.get("data", {}).get("is_nsfw", False)
-                return nsfw
-            else:
+        with open(image_path, 'rb') as img_file:
+            files = {"file": img_file}
+            async with session.post(url, headers=headers, data=files) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    nsfw = data.get("data", {}).get("is_nsfw", False)
+                    return nsfw
+                else:
                 print(f"Eʀʀᴏʀ Wɪᴛʜ Aᴘɪ ʀᴇǫᴜᴇsᴛ: {response.status}")
                 return False
 
@@ -68,30 +64,29 @@ async def image(bot: Client, message: Message):
 
     if not isadmin:
         try:
-            # Directly access the photo object (PhotoSize)
             photo = message.photo
             print(f"Downloading image with file ID: {photo.file_id}")
 
-            # Get the file information
-            file_info = await bot.get_file(photo.file_id)
-            if file_info.file_path:
-                file_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info.file_path}"
+            # Download the image locally
+            file_path = await bot.download_media(photo.file_id)
+            print(f"Image downloaded to: {file_path}")
 
-                # Check if the image is NSFW
-                print(f"Checking NSFW for image: {file_url}")  # Debugging
-                nsfw = await check_nsfw_image(file_url)
+            # Check if the image is NSFW
+            nsfw = await check_nsfw_image(file_path)
 
-                if nsfw:
-                    name = message.from_user.first_name
-                    await message.delete()
+            if nsfw:
+                name = message.from_user.first_name
+                await message.delete()
+                
+                if config.SPOILER:  # Ensure SPOILER flag is defined in config
+                    await message.reply_photo(
+                        file_path,
+                        caption=f"**⚠️ Warning** (NSFW ᴅᴇᴛᴇᴄᴛᴇᴅ)\n**{name}** Sᴇɴᴛ A Nᴜᴅᴇ/NSFW Pʜᴏᴛᴏ",
+                        has_spoiler=True
+                    )
 
-                    if config.SPOILER:  # Ensure SPOILER flag is defined in config
-                        await message.reply_photo(
-                            file_url,
-                            caption=f"""**⚠️ Warning** (NSFW ᴅᴇᴛᴇᴄᴛᴇᴅ)
-**{name}** Sᴇɴᴛ A Nᴜᴅᴇ/NSFW Pʜᴏᴛᴏ""",
-                            has_spoiler=True
-                        )
+            # Optionally, delete the file after processing
+            os.remove(file_path)
 
         except Exception as e:
             print(f"Eʀʀᴏʀ ᴘʀᴏᴄᴇssɪɴɢ ɪᴍᴀɢᴇ: {e}")  # Debugging
