@@ -2,7 +2,6 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 import aiohttp
 import config
-import async
 import re
 import os
 
