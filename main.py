@@ -1,7 +1,8 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message
-import requests
+import aiohttp
 import config
+import async
 import re
 import os
 
@@ -21,8 +22,8 @@ Bot = Client(
     api_hash=config.API_HASH
 )
 
-# NSFW check function
-def check_nsfw_image(image_url):
+# NSFW check function using aiohttp (asynchronous)
+async def check_nsfw_image(image_url):
     url = "https://nsfw3.p.rapidapi.com/v1/results"
     payload = {
         "url": image_url,
@@ -34,17 +35,17 @@ def check_nsfw_image(image_url):
         "Content-Type": "application/x-www-form-urlencoded"
     }
 
-    # Send the POST request
-    response = requests.post(url, data=payload, headers=headers)
-    
-    # Handle the response
-    if response.status_code == 200:
-        data = response.json()
-        nsfw = data.get("data", {}).get("is_nsfw", False)
-        return nsfw
-    else:
-        print(f"Error with API request: {response.status_code}")
-        return False
+    # Asynchronous HTTP request using aiohttp
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, data=payload, headers=headers) as response:
+            # Handle the response
+            if response.status == 200:
+                data = await response.json()  # Async way to get JSON response
+                nsfw = data.get("data", {}).get("is_nsfw", False)
+                return nsfw
+            else:
+                print(f"Eʀʀᴏʀ Wɪᴛʜ Aᴘɪ ʀᴇǫᴜᴇsᴛ: {response.status}")
+                return False
 
 # Handler for '/start' command
 @Bot.on_message(filters.private & filters.command("start"))
@@ -60,6 +61,7 @@ async def start(bot, update):
 ʟᴇᴛ's ᴋᴇᴇᴘ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴀꜰᴇ ᴀɴᴅ ʀᴇsᴇᴄᴛꜰᴜʟ. ᴘᴏᴡᴇʀᴇᴅ ʙʏ @BillaSpace/@Heavenwaala
 """)
 
+# Image processing function
 @Bot.on_message(filters.group & filters.photo)
 async def image(bot: Client, message: Message):
     sender = await bot.get_chat_member(message.chat.id, message.from_user.id)
@@ -67,17 +69,20 @@ async def image(bot: Client, message: Message):
 
     if not isadmin:
         try:
-            # Directly access the photo object (no need for subscripting)
-            photo = message.photo
-            
-            # Download the image to a temporary file
-            file_path = await bot.download_media(photo.file_id)
+            # Retrieve the highest resolution photo from the message
+            photo = message.photo[-1]  # This assumes the photo is available as a list of sizes
+            print(f"Downloading image with file ID: {photo.file_id}")
 
-            if file_path:
-                print(f"Checking NSFW for image: {file_path}")  # Debugging
+            # Get the file information asynchronously
+            file_info = await bot.get_file(photo.file_id)
 
-                # Check if the image is NSFW
-                nsfw = check_nsfw_image(file_path)
+            # Ensure the file info has a file path
+            if file_info.file_path:
+                file_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info.file_path}"
+
+                # Check if the image is NSFW using the provided asynchronous function
+                print(f"Checking NSFW for image: {file_url}")  # Debugging
+                nsfw = await check_nsfw_image(file_url)
 
                 if nsfw:
                     name = message.from_user.first_name
@@ -85,14 +90,11 @@ async def image(bot: Client, message: Message):
 
                     if config.SPOILER:  # Ensure SPOILER flag is defined in config
                         await message.reply_photo(
-                            file_path,
+                            file_url,
                             caption=f"""**⚠️ Warning** (NSFW ᴅᴇᴛᴇᴄᴛᴇᴅ)
 **{name}** Sᴇɴᴛ A Nᴜᴅᴇ/NSFW Pʜᴏᴛᴏ""",
                             has_spoiler=True
                         )
-                
-                # Remove temporary file after processing
-                os.remove(file_path)
 
         except Exception as e:
             print(f"Eʀʀᴏʀ ᴘʀᴏᴄᴇssɪɴɢ ɪᴍᴀɢᴇ: {e}")  # Debugging
