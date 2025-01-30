@@ -66,8 +66,8 @@ async def image(bot: Client, message: Message):
 
     if not isadmin:
         try:
-            # Get the highest resolution photo
-            photo = message.photo[-1]  
+            # Directly access the photo object (no need for subscripting)
+            photo = message.photo
             
             # Download the image to a temporary file
             file_path = await bot.download_media(photo.file_id)
@@ -86,7 +86,7 @@ async def image(bot: Client, message: Message):
                         await message.reply_photo(
                             file_path,
                             caption=f"""**⚠️ Warning** (NSFW ᴅᴇᴛᴇᴄᴛᴇᴅ)
-**{name}** sent a nude/NSFW photo""",
+**{name}** Sᴇɴᴛ A Nᴜᴅᴇ/NSFW Pʜᴏᴛᴏ""",
                             has_spoiler=True
                         )
                 
