@@ -60,29 +60,42 @@ async def start(bot, update):
 """)
 
 @Bot.on_message(filters.group & filters.photo)
-async def image(bot, message):
+async def image(bot: Client, message: Message):
     sender = await bot.get_chat_member(message.chat.id, message.from_user.id)
-    isadmin = sender.privileges
+    isadmin = sender.privileges is not None  # Correct admin check
 
     if not isadmin:
-        async for file_info in bot.get_file(message.photo.file_id):
-            break  # Retrieve the first file info
-        
-        image_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info.file_path}"
-        
-        print(f"Checking NSFW for image: {image_url}")  # Debugging
+        try:
+            # Get the highest resolution photo
+            photo = message.photo[-1]  
+            
+            # Download the image to a temporary file
+            file_path = await bot.download_media(photo.file_id)
 
-        nsfw = check_nsfw_image(image_url)
-        if nsfw:
-            name = message.from_user.first_name
-            await message.delete()
-            if SPOILER:
-                await message.reply_photo(
-                    image_url,
-                    caption=f"""**ᴡᴀʀɴɪɴɢ ⚠️** (nude photo)
-**{name}** ꜱᴇɴᴛ ᴀ ɴᴜᴅᴇ/ɴꜱꜰᴡ ᴘʜᴏᴛᴏ""",
-                    has_spoiler=True
-                )
+            if file_path:
+                print(f"Checking NSFW for image: {file_path}")  # Debugging
+
+                # Check if the image is NSFW
+                nsfw = check_nsfw_image(file_path)
+
+                if nsfw:
+                    name = message.from_user.first_name
+                    await message.delete()
+
+                    if config.SPOILER:  # Ensure SPOILER flag is defined in config
+                        await message.reply_photo(
+                            file_path,
+                            caption=f"""**⚠️ Warning** (NSFW ᴅᴇᴛᴇᴄᴛᴇᴅ)
+**{name}** sent a nude/NSFW photo""",
+                            has_spoiler=True
+                        )
+                
+                # Remove temporary file after processing
+                os.remove(file_path)
+
+        except Exception as e:
+            print(f"Eʀʀᴏʀ ᴘʀᴏᴄᴇssɪɴɢ ɪᴍᴀɢᴇ: {e}")  # Debugging
+
 
 # Handler for text messages containing slang
 @Bot.on_message(filters.group & filters.text)
