@@ -61,13 +61,15 @@ async def start(bot, update):
 
 @Bot.on_message(filters.group & filters.photo)
 async def image(bot, message):
-    sender = await Bot.get_chat_member(message.chat.id, message.from_user.id)
+    sender = await bot.get_chat_member(message.chat.id, message.from_user.id)
     isadmin = sender.privileges
 
     if not isadmin:
-        file_info = await bot.get_file(message.photo.file_id)
+        async for file_info in bot.get_file(message.photo.file_id):
+            break  # Retrieve the first file info
+        
         image_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info.file_path}"
-
+        
         print(f"Checking NSFW for image: {image_url}")  # Debugging
 
         nsfw = check_nsfw_image(image_url)
