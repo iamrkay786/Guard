@@ -60,7 +60,7 @@ async def start(bot, update):
 ʟᴇᴛ's ᴋᴇᴇᴘ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴀꜰᴇ ᴀɴᴅ ʀᴇsᴇᴄᴛꜰᴜʟ. ᴘᴏᴡᴇʀᴇᴅ ʙʏ @BillaSpace/@Heavenwaala
 """)
 
-# Image processing function
+# image processing function
 @Bot.on_message(filters.group & filters.photo)
 async def image(bot: Client, message: Message):
     sender = await bot.get_chat_member(message.chat.id, message.from_user.id)
@@ -82,6 +82,12 @@ async def image(bot: Client, message: Message):
                 name = message.from_user.first_name
                 await message.delete()
                 
+                # Send NSFW warning message
+                await message.reply(
+                    f"⚠️ **Warning**: **{name}** sent an NSFW image, and it has been deleted by the Billa.",
+                    quote=True
+                )
+
                 if config.SPOILER:  # Ensure SPOILER flag is defined in config
                     await message.reply_photo(
                         file_path,
@@ -94,7 +100,6 @@ async def image(bot: Client, message: Message):
 
         except Exception as e:
             print(f"Error processing image: {e}")  # Debugging
-
 
 # Handler for text messages containing slang
 @Bot.on_message(filters.group & filters.text)
