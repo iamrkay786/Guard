@@ -3,3 +3,4 @@ tgcrypto
 transformers
 torch
 pillow
+pymongo
