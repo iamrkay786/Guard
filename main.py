@@ -1,9 +1,11 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message
-import aiohttp
+import torch
+from transformers import AutoFeatureExtractor, AutoModelForImageClassification
+from PIL import Image
+import os
 import config
 import re
-import os
 
 # Configuration for Spoiler Mode
 SPOILER = config.SPOILER_MODE
@@ -21,26 +23,28 @@ Bot = Client(
     api_hash=config.API_HASH
 )
 
-# NSFW check function using aiohttp (asynchronous)
-async def check_nsfw_image(image_path):
-    url = "https://nsfw3.p.rapidapi.com/v1/results"
-    headers = {
-        "x-rapidapi-key": config.NSFW_API_KEY,  # Use your API key
-        "x-rapidapi-host": "nsfw3.p.rapidapi.com"
-    }
+# Load the pre-trained NSFW detection model
+model_name = "AdamCodd/vit-base-nsfw-detector"
+feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
+model = AutoModelForImageClassification.from_pretrained(model_name)
 
-    # Send image as a file
-    async with aiohttp.ClientSession() as session:
-        with open(image_path, 'rb') as img_file:
-            files = {"file": img_file}
-            async with session.post(url, headers=headers, data=files) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    nsfw = data.get("data", {}).get("is_nsfw", False)
-                    return nsfw
-                else:
-                    print(f"API request error: {response.status}")
-                    return False
+# NSFW detection function
+async def check_nsfw_image(image_path):
+    try:
+        # Open image and preprocess
+        image = Image.open(image_path)
+        inputs = feature_extractor(images=image, return_tensors="pt")
+
+        # Make prediction
+        with torch.no_grad():
+            outputs = model(**inputs)
+            logits = outputs.logits
+            predicted_class = torch.argmax(logits, dim=-1).item()
+
+        return predicted_class == 1  # 1 means NSFW, 0 means safe
+    except Exception as e:
+        print(f"Error processing image: {e}")
+        return False
 
 # Handler for '/start' command
 @Bot.on_message(filters.private & filters.command("start"))
@@ -81,7 +85,7 @@ async def image(bot: Client, message: Message):
                 if config.SPOILER:  # Ensure SPOILER flag is defined in config
                     await message.reply_photo(
                         file_path,
-                        caption=f"**⚠️ Warning** (NSFW ᴅᴇᴛᴇᴄᴛᴇᴅ)\n**{name}** Sᴇɴᴛ A Nᴜᴅᴇ/NSFW Pʜᴏᴛᴏ",
+                        caption=f"**⚠️ Warning** (NSFW detected)\n**{name}** sent an NSFW image.",
                         has_spoiler=True
                     )
 
@@ -89,7 +93,7 @@ async def image(bot: Client, message: Message):
             os.remove(file_path)
 
         except Exception as e:
-            print(f"Eʀʀᴏʀ ᴘʀᴏᴄᴇssɪɴɢ ɪᴍᴀɢᴇ: {e}")  # Debugging
+            print(f"Error processing image: {e}")  # Debugging
 
 
 # Handler for text messages containing slang
@@ -109,10 +113,11 @@ async def slang(bot, message):
         
         if isslang:
             name = message.from_user.first_name
-            msgtxt = f"""{name} ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ ʜᴀꜱ ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ ᴅᴜᴇ ᴛᴏ ᴛʜᴇ ᴘʀᴇꜱᴇɴᴄᴇ ᴏꜰ ɪɴᴀᴘᴘʀᴏᴘʀɪᴀᴛᴇ ʟᴀɴɢᴜᴀɢᴇ[ɢᴀᴀʟɪ/ꜱʟᴀɴɢꜰᴜʟ ᴡᴏʀᴅꜱ]. ʜᴇʀᴇ ɪꜱ ᴀ ᴄᴇɴꜱᴏʀᴇᴅ ᴠᴇʀꜱɪᴏɴ ᴏꜰ ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ:
-                
+            msgtxt = f"""{name} ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ ʜᴀꜱ ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ ᴅᴜᴇ ᴛᴏ ᴛʜᴇ ᴘʀᴇꜱᴇɴᴄᴇ ᴏꜰ ɪɴᴀᴘᴘʀᴏꜱʀɪᴀᴛᴇ ʟᴀɴɢᴜᴀɢᴇ[ɢᴀᴀʟɪ/ꜱʟᴀɴɢꜰᴜʟ ᴡᴏʀᴅꜱ]. ʜᴇʀᴇ ɪꜱ ᴀ ᴄᴇɴꜱᴏʀᴇᴅ ᴠᴇʀꜱɪᴏɴ ᴏꜰ ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ:
+
 {sentence}
             """
+
             if SPOILER:
                 await message.reply(msgtxt)
 
