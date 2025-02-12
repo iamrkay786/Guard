@@ -88,14 +88,14 @@ async def image(bot: Client, message: Message):
                 
                 # Send NSFW warning message
                 await message.reply(
-                    f"⚠️ **Warning**: **{name}** sent an NSFW image, and it has been deleted by the Billa.",
+                    f"⚠️ **Warning**: **{name}** sᴇɴᴛ ᴀɴ NSFW ɪᴍᴀɢᴇ, ᴀɴᴅ ɪᴛ ʜᴀs ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ ʙʏ ᴛʜᴇ Bɪʟʟᴀ.",
                     quote=True
                 )
 
                 if config.SPOILER:  # Ensure SPOILER flag is defined in config
                     await message.reply_photo(
                         file_path,
-                        caption=f"**⚠️ Warning** (NSFW detected)\n**{name}** sent an NSFW image.",
+                        caption=f"**⚠️ Warning** (NSFW ᴅᴇᴛᴇᴄᴛᴇᴅ)\n**{name}** sᴇɴᴛ NSFW ɪᴍᴀɢᴇ.",
                         has_spoiler=True
                     )
 
@@ -103,7 +103,7 @@ async def image(bot: Client, message: Message):
             os.remove(file_path)
 
         except Exception as e:
-            print(f"Error processing image: {e}")  # Debugging
+            print(f"ᴇʀʀᴏʀ pʀᴏᴄᴇssɪɴɢ ɪᴍᴀɢᴇ: {e}")  # Debugging
 
 # Handler for text messages containing slang
 @Bot.on_message(filters.group & filters.text)
@@ -122,7 +122,7 @@ async def slang(bot, message):
         
         if isslang:
             name = message.from_user.first_name
-            msgtxt = f"""{name} ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ ʜᴀꜱ ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ ᴅᴜᴇ ᴛᴏ ᴛʜᴇ ᴘʀᴇꜱᴇɴᴄᴇ ᴏꜰ ɪɴᴀᴘᴘʀᴏꜱʀɪᴀᴛᴇ ʟᴀɴɢᴜᴀɢᴇ[ɢᴀᴀʟɪ/ꜱʟᴀɴɢꜰᴜʟ ᴡᴏʀᴅꜱ]. ʜᴇʀᴇ ɪꜱ ᴀ ᴄᴇɴꜱᴏʀᴇᴅ ᴠᴇʀꜱɪᴏɴ ᴏꜰ ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ:
+            msgtxt = f"""{name} ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ ʜᴀꜱ ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ ᴅᴜᴇ ᴛᴏ ᴛʜᴇ ᴘʀᴇꜱᴇɴᴄᴇ ᴏꜰ ɪɴᴀᴘᴘʀᴏᴘɪᴀᴛᴇ ʟᴀɴɢᴜᴀɢᴇ[ɢᴀᴀʟɪ/ꜱʟᴀɴɢꜰᴜʟ ᴡᴏʀᴅꜱ]. ʜᴇʀᴇ ɪꜱ ᴀ ᴄᴇɴꜱᴏʀᴇᴅ ᴠᴇʀꜱɪᴏɴ ᴏꜰ ʏᴏᴜʀ ᴍᴇꜱꜱᴀɢᴇ:
 
 {sentence}
             """
