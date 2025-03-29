@@ -1,17 +1,17 @@
 {
-  "name": "ʙɪʟʟᴀ ᴍᴇᴅɪᴀ-ɢᴜᴀʀᴅɪᴀɴ",
-  "description": " ɪꜱ ᴀɴ ᴛᴇʟᴇɢʀᴀᴍ ɢʀᴏᴜᴘ ᴄʟᴇᴀɴᴇʀ ɪꜱ ᴀɴ ᴏᴘᴇɴ ꜱᴏᴜʀᴄᴇ ʙᴏᴛ ᴅᴇꜱɪɢɴᴇᴅ ᴛᴏ ʜᴇʟᴘ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴɪꜱᴛʀᴀᴛᴏʀꜱ ᴍᴀɪɴᴛᴀɪɴ ᴀ ᴄʟᴇᴀɴ ᴀɴᴅ ꜱᴀꜰᴇ ᴇɴᴠɪʀᴏɴᴍᴇɴᴛ ꜰᴏʀ ᴛʜᴇɪʀ ᴄᴏᴍᴍᴜɴɪᴛɪᴇꜱ [ᴍᴀɴᴀɢᴇᴍᴇɴᴛ ꜰᴇᴀᴛᴜʀᴇꜱ ᴄᴏᴍɪɴɢ ꜱᴏᴏɴ ].",
+  "name": "ɢᴜᴀʀᴅɪᴀɴ Bot",
+  "description": " ɪꜱ ᴀɴ ᴛᴇʟᴇɢʀᴀᴍ ɢʀᴏᴜᴘ ᴄʟᴇᴀɴᴇʀ ɪꜱ ᴀɴ ᴏᴘᴇɴ ꜱᴏᴜʀᴄᴇ ʙᴏᴛ ᴅᴇꜱɪɢɴᴇᴅ ᴛᴏ ʜᴇʟᴘ ɢʀᴏᴜᴘ ᴀᴅᴍɪɴɪꜱᴛʀᴀᴛᴏʀꜱ ᴍᴀɪɴᴛᴀɪɴ ᴀ ᴄʟᴇᴀɴ ᴀɴᴅ ꜱᴀꜰᴇ ᴇɴᴠɪʀᴏɴᴍᴇɴᴛ ꜰᴏʀ ᴛʜᴇɪʀ ᴄᴏᴍᴍᴜɴɪᴛɪᴇ ].",
   "logo": "",
   "keywords": [
     "Pyrogram",
     "bot",
     "nsfw Bot",
     "Telegram Bot",
-    "BillaSpace"
+    "ᴠɪʟʟᴀɪɴ ꭙ ꜱᴜᴘᴘᴏʀᴛ"
   ],
-  "Home-of-bot": "https://t.me/BillaSpace",
-  "Channel": "https://t.me/Heavenwaala",
-  "success_url": "https://t.me/interstellarXd",
+  "Home-of-bot": "https://t.me/oldskoolgc",
+  "Channel": "https://t.me/iamvillain77",
+  "success_url": "https://t.me/iamakki001",
   "env": {
     "BOT_TOKEN": {
       "description": "You Telegram Bot Token from @BotFather",
